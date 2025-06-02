@@ -4,7 +4,6 @@
     "parameters": {
         "webAppName": {
             "type": "string",
-            "defaultValue": "mymvcapp",
             "metadata": {
                 "description": "Base name of the web app"
             }
@@ -26,48 +25,42 @@
         }
     },
     "variables": {
-        "webAppFullName": "[format('webapp-{0}-{1}', parameters('webAppName'), parameters('environment'))]",
-        "appServicePlanName": "[format('asp-{0}-{1}', parameters('webAppName'), parameters('environment'))]"
+        "webAppFullName": "[concat(parameters('webAppName'), '-', parameters('environment'))]",
+        "appServicePlanName": "[concat(parameters('webAppName'), '-plan-', parameters('environment'))]"
     },
     "resources": [
         {
-            "type": "Microsoft.Web/serverfarms",
-            "apiVersion": "2022-03-01",
             "name": "[variables('appServicePlanName')]",
+            "type": "Microsoft.Web/serverfarms",
+            "apiVersion": "2021-03-01",
             "location": "[parameters('location')]",
+            "tags": {
+                "environment": "[parameters('environment')]"
+            },
             "sku": {
                 "name": "F1",
-                "tier": "Free",
-                "capacity": 1
+                "tier": "Free"
             },
-            "properties": {
-                "reserved": false
-            }
+            "properties": {}
         },
         {
-            "type": "Microsoft.Web/sites",
-            "apiVersion": "2022-03-01",
             "name": "[variables('webAppFullName')]",
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2021-03-01",
             "location": "[parameters('location')]",
+            "tags": {
+                "environment": "[parameters('environment')]"
+            },
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
             ],
             "properties": {
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+                "httpsOnly": true,
                 "siteConfig": {
                     "netFrameworkVersion": "v7.0",
-                    "metadata": [
-                        {
-                            "name": "CURRENT_STACK",
-                            "value": "dotnetcore"
-                        }
-                    ],
-                    "appSettings": [
-                        {
-                            "name": "ASPNETCORE_ENVIRONMENT",
-                            "value": "[parameters('environment')]"
-                        }
-                    ]
+                    "minTlsVersion": "1.2",
+                    "ftpsState": "FtpsOnly"
                 }
             }
         }

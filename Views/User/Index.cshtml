@@ -9,6 +9,20 @@
 <p>
     @Html.ActionLink("Create New", "Create", "User")
 </p>
+
+<div class="search-container mb-4">
+    @using (Html.BeginForm("Search", "User", FormMethod.Get))
+    {
+        <div class="input-group">
+            @Html.TextBox("searchTerm", null, new { @class = "form-control", placeholder = "Search users..." })
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary">Search</button>
+                <a href="@Url.Action("Index")" class="btn btn-secondary">Clear</a>
+            </div>
+        </div>
+    }
+</div>
+
 <table class="table">
     <tr>
         <th>
